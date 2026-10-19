@@ -119,7 +119,8 @@ a{color:inherit}
 
 /* ---------- Footer ---------- */
 .foot-site{margin:42px 0 30px;padding-top:22px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;color:var(--muted);font-size:14px}
-.foot-site b{font-family:var(--serif);font-weight:400;font-size:18px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.foot-site b{position:relative;isolation:isolate;display:inline-block;font:400 18px/1 'Titan One',var(--sans);color:#fff;padding:0 .065em .065em 0}
+.foot-site b::before{content:'Puzzl';position:absolute;left:0;top:0;z-index:-1;transform:translate(.065em,.065em);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .kofi{flex-basis:100%;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:13px;color:var(--muted)}
 .kofi a{display:inline-flex;align-items:center;gap:6px;color:var(--ice);text-decoration:none;border-bottom:1px solid var(--line2);padding-bottom:1px;transition:color .15s,border-color .15s}
 .kofi a:hover{color:var(--text);border-color:var(--pink)}

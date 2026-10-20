@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Puzzl HQ</title>
+<meta name="theme-color" content="#0b0f22">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Titan+One&text=Puzzl&display=block" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b0f22;--panel:#151b38;--panel2:#1d2448;--line:rgba(150,165,230,.16);--line2:rgba(150,165,230,.34);
+  --muted:#939fca;--ice:#c7d2ff;--text:#eef1ff;--bar:#a78bfa;--grid:rgba(150,165,230,.12);
+  --good:#3fcf8e;--warn:#f7c948;--bad:#ff5d73;
+  --grad:linear-gradient(90deg,#a855f7,#ec4899);
+  --serif:'DM Serif Display',Georgia,serif;--mono:'DM Mono',ui-monospace,monospace;--sans:'DM Sans',system-ui,sans-serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#0b0f22;--text:#eef1ff}}
+:root[data-theme="dark"]{--ink:#0b0f22;--text:#eef1ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;font:400 15px/1.5 var(--sans);color:var(--text);-webkit-font-smoothing:antialiased;background-color:var(--ink);
+  background:radial-gradient(900px 520px at 12% -8%,rgba(168,85,247,.18),transparent 60%),var(--ink)}
+a{color:var(--ice)}
+.wrap{max-width:1080px;margin:0 auto;padding:18px 16px 60px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.mark{display:grid;grid-template-columns:repeat(3,8px);gap:3px}.mark i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.word{position:relative;isolation:isolate;font:400 28px/1 'Titan One',var(--sans);color:#fff;padding:0 .065em .065em 0}
+.word::before{content:'Puzzl';position:absolute;left:0;top:0;z-index:-1;transform:translate(.065em,.065em);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hq{font:500 12px var(--mono);letter-spacing:.2em;color:var(--muted);border:1px solid var(--line2);border-radius:99px;padding:4px 10px}
+.btn{height:36px;padding:0 14px;border-radius:99px;border:1px solid var(--line2);background:var(--panel);color:var(--text);font:500 13px var(--sans);cursor:pointer}
+.btn:hover{background:var(--panel2)}
+h1{font:400 clamp(30px,5vw,42px)/1.1 var(--serif);margin:28px 0 4px}
+.lede{color:var(--ice)}
+h2{font:500 12px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:38px 0 12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}
+.panel h3{font:400 21px var(--serif);margin-bottom:2px}
+.panel .sub{font-size:13px;color:var(--muted);margin-bottom:12px}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;margin-bottom:12px;font-size:14px;color:var(--text);
+  background:rgba(247,201,72,.08);border:1px solid rgba(247,201,72,.35)}
+.alert.bad{background:rgba(255,93,115,.08);border-color:rgba(255,93,115,.4)}
+.alert.good{background:rgba(63,207,142,.08);border-color:rgba(63,207,142,.35)}
+
+/* runway */
+.run{display:grid;gap:10px}
+.rw{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,2fr) 116px;gap:16px;align-items:center;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:16px}
+.rw .nm{display:flex;align-items:center;gap:10px;min-width:0}
+.rw .dot{width:12px;height:12px;border-radius:50%;flex:none;background:var(--c)}
+.rw .nm b{font:400 19px var(--serif);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rw .nm small{display:block;font:400 12px var(--mono);color:var(--muted)}
+.rw .bar{height:10px;border-radius:99px;background:rgba(150,165,230,.14);overflow:hidden;display:flex}
+.rw .bar i{display:block;height:100%;background:rgba(150,165,230,.38)}
+.rw .bar em{display:block;height:100%;background:var(--bar);margin-left:2px;border-radius:0 99px 99px 0}
+.rw .txt{font-size:13px;color:var(--ice);margin-top:6px}
+.rw .txt b{color:var(--text);font-weight:500}
+.pill{justify-self:end;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:99px;font:500 12px var(--mono);letter-spacing:.06em;white-space:nowrap;border:1px solid}
+.pill.good{color:var(--good);border-color:rgba(63,207,142,.45);background:rgba(63,207,142,.08)}
+.pill.warn{color:var(--warn);border-color:rgba(247,201,72,.45);background:rgba(247,201,72,.08)}
+.pill.bad{color:var(--bad);border-color:rgba(255,93,115,.5);background:rgba(255,93,115,.1)}
+.pill.na{color:var(--muted);border-color:var(--line2)}
+
+/* players */
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.tile span{display:block;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tile b{display:block;font:400 36px/1.1 var(--serif);margin-top:6px}
+.tile small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .ax{font:400 11px var(--mono);fill:var(--muted)}
+.tip{position:fixed;z-index:20;pointer-events:none;background:#0b0f22;border:1px solid var(--line2);border-radius:10px;padding:8px 10px;font-size:13px;color:var(--text);
+  box-shadow:0 10px 30px -10px rgba(0,0,0,.6);opacity:0;transition:opacity .1s;white-space:nowrap}
+.tip b{font-weight:500}.tip small{display:block;color:var(--muted);font:400 11px var(--mono)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:right;padding:6px 8px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+td .g{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+td .g i{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
+td .g em{font-style:normal;font:500 10px var(--mono);letter-spacing:.1em;color:var(--muted);border:1px solid var(--line2);border-radius:99px;padding:1px 6px}
+td.barcell{width:38%}
+.hb{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.hb i{display:block;height:10px;border-radius:0 4px 4px 0;background:var(--bar)}
+.list{display:grid;gap:6px}
+.li{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:6px 0;border-bottom:1px solid var(--line)}
+.li:last-child{border-bottom:0}
+.li span{color:var(--muted);font:400 12px var(--mono)}
+.gate{text-align:center;padding:26px 18px;border:1px dashed var(--line2);border-radius:18px;color:var(--ice)}
+.gate b{display:block;font:400 22px var(--serif);color:var(--text);margin-bottom:6px}
+.sr{position:absolute;top:0;left:0;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (max-width:860px){.tiles{grid-template-columns:repeat(3,1fr)}.two{grid-template-columns:1fr}}
+@media (max-width:600px){
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  .rw{grid-template-columns:1fr auto;gap:10px 12px}
+  .rw .mid{grid-column:1 / -1;order:3}
+  .tile b{font-size:30px}
+  td.barcell{width:auto}
+  .hide-sm{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="brand" href="/" aria-label="Puzzl home">
+      <span class="mark" aria-hidden="true"><i style="--c:#ffd98a"></i><i style="--c:#2dd4bf"></i><i style="--c:#ff5fa2"></i><i style="--c:#b591ff"></i><i style="--c:#3fcf8e"></i><i style="--c:#f7c948"></i></span>
+      <span class="word">Puzzl</span>
+    </a>
+    <span class="hq">HQ · PRIVATE</span>
+    <button class="btn" id="refresh" type="button">Refresh</button>
+  </div>
+
+  <h1>How's Puzzl doing?</h1>
+  <p class="lede" id="asof">Loading…</p>
+
+  <h2>Puzzle runway</h2>
+  <div id="runAlert"></div>
+  <div class="run" id="run"></div>
+  <p class="note">Counts are read live from each game's page, so they update as soon as you upload new puzzles. When a game runs out it goes back to puzzle No. 1 and repeats.</p>
+
+  <h2>Players</h2>
+  <div id="players"><div class="gate">Loading…</div></div>
+</div>
+<div class="tip" id="tip" role="status"></div>
+
+<script>
+/* ================= Settings ================= */
+const SUPABASE_URL = 'https://eaojznfqcptctqgtvfbj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_DsNChX74tHAfCAH-oL5a8w_7uigHhz-';
+const RESET_HOUR = 7;
+const WARN_DAYS = 21, ADD_NOW_DAYS = 7;   // "Add soon" under 3 weeks, "Add now" under a week
+
+/* Each game: where it lives, its puzzle No. 1 date, and how to count its puzzles from the page's code.
+   count(src) returns how many DAYS of fresh puzzles the game has. Keep launch dates in step with the games. */
+const GAMES = [
+  {id: 'dub',  name: 'Dub Titles',    colour: '#ffd98a', path: '/Dub-Titles-2/',  launch: '2026-10-07', unit: 'days of films',    count: s => countArray(s, 'DAYS')},
+  {id: 'geo',  name: 'Geo Clue',      colour: '#2dd4bf', path: '/GeoClue/',       launch: '2026-10-07', unit: 'countries',        count: s => countArray(s, 'COUNTRIES'), note: 'then reshuffled'},
+  {id: 'peck', name: 'Pecking Order', colour: '#ff5fa2', path: '/Pecking-Order/', launch: '2026-10-07', unit: 'puzzles',          count: s => countArray(s, 'PUZZLES')},
+  {id: 'teth', name: 'Tethered',      colour: '#b591ff', path: '/Tethered/',      launch: '2026-10-07', unit: 'puzzles',          count: s => countArray(s, 'PUZZLES')},
+  {id: 'code', name: 'Codebreaker',   colour: '#3fcf8e', path: '/Codebreaker/',   launch: '2026-10-07', unit: 'codes',            count: s => { const m = s.match(/const ANSWERS\s*=\s*atob\('([^']+)'\)/); return m ? atob(m[1]).split(',').length : null; }},
+  {id: 'quid', name: 'Quids In',      colour: '#f7c948', path: '/QuidsIn/',       launch: '2026-10-07', unit: 'episodes',         count: s => countArray(s, 'DAYS')},
+  {id: 'pork', name: 'Porkies',       colour: '#ff4d6d', path: '/Porkies/',       launch: '2026-10-07', unit: 'cases',            count: s => countArray(s, 'PUZZLES'), bonus: true},
+  {id: 'pop',  name: 'Pop Quiz',      colour: '#f472b6', path: '/Pop-Quiz/',      launch: '2026-10-21', unit: 'quizzes',          count: s => countArray(s, 'DAYS'), bonus: true},
+  {id: 'uu',   name: 'Up & Under',    colour: '#38b6ff', path: '/UpandOver/',     launch: '2026-10-20', unit: 'facts',            bonus: true,
+   /* 8 calls + a kick-off a day (9 facts); it starts reusing facts when fewer than 20 are left unused */
+   count: s => { const n = countArray(s, 'RAW'); return n == null ? null : {days: Math.floor((n - 20) / 9) + 1, raw: n}; }, note: '9 a day'},
+];
+const NAMES = Object.fromEntries(GAMES.map(g => [g.id, g]));
+
+/* ================= Helpers ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m]));
+function londonDay() {   // today's puzzle date in the UK (rolls over at 7am)
+  const o = {};
+  new Intl.DateTimeFormat('en-GB', {timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit'})
+    .formatToParts(new Date(Date.now() - RESET_HOUR * 3600e3)).forEach(p => o[p.type] = p.value);
+  return Date.UTC(+o.year, +o.month - 1, +o.day);
+}
+const launchUTC = l => { const [y, m, d] = l.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+const dayNo = l => Math.round((londonDay() - launchUTC(l)) / 864e5) + 1;            // can be 0 or less before launch
+const dateOf = (l, n) => new Date(launchUTC(l) + (n - 1) * 864e5);
+const fmt = (d, o = {weekday: 'short', day: 'numeric', month: 'short'}) => d.toLocaleDateString('en-GB', Object.assign({timeZone: 'UTC'}, o, d.getUTCFullYear() !== new Date().getFullYear() && o.month ? {year: 'numeric'} : {}));
+const isoDay = ms => new Date(ms).toISOString().slice(0, 10);
+
+/* Counts the items in `const NAME = [ ... ]`, skipping anything inside strings and comments */
+function countArray(src, name) {
+  const m = src.match(new RegExp('(?:const|let|var)\\s+' + name + '\\s*=\\s*\\['));
+  if (!m) return null;
+  let i = m.index + m[0].length, depth = 1, items = 0, seen = false;
+  while (i < src.length && depth > 0) {
+    const ch = src[i], nx = src[i + 1];
+    if (ch === '/' && nx === '/') { i = src.indexOf('\n', i); if (i < 0) break; continue; }
+    if (ch === '/' && nx === '*') { i = src.indexOf('*/', i + 2) + 2; continue; }
+    if (ch === '"' || ch === "'" || ch === '`') {
+      const q = ch; i++;
+      while (i < src.length && src[i] !== q) { if (src[i] === '\\') i++; i++; }
+      i++; if (depth === 1) seen = true; continue;
+    }
+    if (ch === '[' || ch === '{' || ch === '(') { depth++; if (depth === 2) seen = true; }
+    else if (ch === ']' || ch === '}' || ch === ')') { depth--; if (depth === 0) break; }
+    else if (ch === ',' && depth === 1) { if (seen) items++; seen = false; }
+    else if (depth === 1 && !/\s/.test(ch)) seen = true;
+    i++;
+  }
+  return items + (seen ? 1 : 0);
+}
+
+/* ================= Puzzle runway ================= */
+async function loadRunway() {
+  const rows = await Promise.all(GAMES.map(async g => {
+    let days = null, raw = null;
+    try {
+      const r = await fetch(g.path + '?hq=' + Date.now(), {cache: 'no-store'});
+      if (r.ok) { const c = g.count(await r.text()); if (c && typeof c === 'object') { days = c.days; raw = c.raw; } else { days = c; raw = c; } }
+    } catch (e) {}
+    const today = dayNo(g.launch);
+    const left = days == null ? null : days - Math.max(today, 0);   // fresh puzzles after today
+    return {g, days, raw, today, left, last: days == null ? null : dateOf(g.launch, days)};
+  }));
+  rows.sort((a, b) => (a.left == null) - (b.left == null) || a.left - b.left);
+  $('run').innerHTML = rows.map(r => {
+    const {g} = r;
+    const status = r.left == null ? ['na', '?', "Couldn't read"] : r.left <= ADD_NOW_DAYS ? ['bad', '!', 'Add now'] : r.left <= WARN_DAYS ? ['warn', '◔', 'Add soon'] : ['good', '✓', 'Fine'];
+    const used = r.days ? Math.min(Math.max(r.today, 0), r.days) : 0;
+    const usedPct = r.days ? used / r.days * 100 : 0, leftPct = r.days ? Math.max(0, r.days - used) / r.days * 100 : 0;
+    const counted = r.raw == null ? 'count not found' : `${r.raw} ${g.unit}${g.note ? ' · ' + g.note : ''}`;
+    const line = r.left == null ? `Couldn't count the puzzles on <a href="${g.path}">${g.path}</a>. The page may have changed.`
+      : r.today < 1 ? `Starts ${fmt(dateOf(g.launch, 1))}. <b>${r.days} days</b> ready, up to <b>${fmt(r.last)}</b>.`
+      : r.left < 0 ? `Ran out on <b>${fmt(r.last)}</b>. It's repeating old puzzles now.`
+      : `No. ${r.today} today · new puzzles until <b>${fmt(r.last)}</b> · <b>${r.left} day${r.left === 1 ? '' : 's'}</b> left`;
+    return `<div class="rw">
+      <div class="nm"><span class="dot" style="--c:${g.colour}"></span><div><b>${esc(g.name)}</b><small>${esc(counted)}${g.bonus ? ' · bonus' : ''}</small></div></div>
+      <div class="mid"><div class="bar" role="img" aria-label="${used} of ${r.days || '?'} used"><i style="width:${usedPct}%"></i><em style="width:${leftPct}%"></em></div><div class="txt">${line}</div></div>
+      <span class="pill ${status[0]}"><span aria-hidden="true">${status[1]}</span>${status[2]}</span>
+    </div>`;
+  }).join('');
+  const now = rows.filter(r => r.left != null && r.left <= ADD_NOW_DAYS), soon = rows.filter(r => r.left != null && r.left > ADD_NOW_DAYS && r.left <= WARN_DAYS);
+  $('runAlert').innerHTML = now.length
+    ? `<div class="alert bad"><span aria-hidden="true">!</span><span><b>${now.map(r => esc(r.g.name)).join(', ')}</b> ${now.length === 1 ? 'needs' : 'need'} new puzzles this week.</span></div>`
+    : soon.length ? `<div class="alert"><span aria-hidden="true">◔</span><span>${soon.length} game${soon.length === 1 ? '' : 's'} run${soon.length === 1 ? 's' : ''} out within 3 weeks. First up: <b>${esc(soon[0].g.name)}</b> on ${fmt(soon[0].last)}.</span></div>`
+    : `<div class="alert good"><span aria-hidden="true">✓</span><span>Every game has at least 3 weeks of puzzles ready.</span></div>`;
+}
+
+/* ================= Signing in (uses the login from the Puzzl homepage) ================= */
+const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+async function token() {
+  const s = load('puzzl-auth', null);
+  if (!s || !s.refresh_token) return null;
+  if (s.expires_at - 90 > Date.now() / 1000) return s.access_token;
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {method: 'POST', headers: {'Content-Type': 'application/json', apikey: SUPABASE_KEY}, body: JSON.stringify({refresh_token: s.refresh_token})});
+  if (!r.ok) return null;
+  const j = await r.json();
+  save('puzzl-auth', Object.assign(s, {access_token: j.access_token, refresh_token: j.refresh_token, expires_at: j.expires_at || Math.floor(Date.now() / 1000) + (j.expires_in || 3600)}));
+  return j.access_token;
+}
+async function adminStats() {
+  const t = await token();
+  if (!t) return {gate: 'signin'};
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/puzzl_admin_stats`, {method: 'POST', headers: {'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: 'Bearer ' + t}, body: '{}'});
+  const j = await r.json().catch(() => null);
+  if (!r.ok) return {gate: /Puzzl team|permission/i.test((j && j.message) || '') ? 'notadmin' : 'error', msg: j && j.message};
+  return {data: j};
+}
+
+/* ================= Charts (single series, one colour, hover for values) ================= */
+const tip = $('tip');
+function showTip(e, html) {
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const x = Math.min(innerWidth - tip.offsetWidth - 8, e.clientX + 12), y = Math.max(8, e.clientY - tip.offsetHeight - 12);
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+const hideTip = () => { tip.style.opacity = 0; };
+function niceMax(v) { if (v <= 4) return 4; const p = Math.pow(10, Math.floor(Math.log10(v))), f = v / p; return (f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; }
+function columns(el, data, title) {   // data: [{label, value, tip}]
+  const W = 520, H = 170, L = 28, B = 22, T = 8, max = niceMax(Math.max(1, ...data.map(d => d.value)));
+  const band = (W - L) / data.length, bw = Math.min(14, band * 0.7);
+  const y = v => T + (H - T - B) * (1 - v / max);
+  const ticks = [0, max / 2, max];
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">`;
+  ticks.forEach(t => { svg += `<line x1="${L}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)" stroke-width="1"/><text class="ax" x="${L - 6}" y="${y(t) + 4}" text-anchor="end">${t}</text>`; });
+  data.forEach((d, i) => {
+    const x = L + i * band + (band - bw) / 2, top = y(d.value), h = y(0) - top;
+    if (d.value > 0) { const r = Math.min(4, h, bw / 2);
+      svg += `<path d="M${x},${y(0)} V${top + r} Q${x},${top} ${x + r},${top} H${x + bw - r} Q${x + bw},${top} ${x + bw},${top + r} V${y(0)} Z" fill="var(--bar)"/>`; }
+    svg += `<rect class="hit" data-i="${i}" x="${L + i * band}" y="${T}" width="${band}" height="${H - T - B}" fill="transparent"/>`;
+    if (i === 0 || i === data.length - 1 || i === Math.floor(data.length / 2)) svg += `<text class="ax" x="${L + i * band + band / 2}" y="${H - 6}" text-anchor="middle">${esc(d.label)}</text>`;
+  });
+  svg += `<line x1="${L}" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line2)" stroke-width="1"/></svg>`;
+  el.innerHTML = svg + `<div class="sr"><table><caption>${esc(title)}</caption>${data.map(d => `<tr><td>${esc(d.label)}</td><td>${d.value}</td></tr>`).join('')}</table></div>`;
+  el.querySelectorAll('.hit').forEach(r => {
+    const d = data[+r.dataset.i];
+    r.addEventListener('pointermove', e => showTip(e, d.tip)); r.addEventListener('pointerleave', hideTip);
+  });
+}
+function last30(series, key) {   // fill in days with nothing
+  const map = Object.fromEntries((series || []).map(s => [s.d, s])), out = [], end = londonDay();
+  for (let k = 29; k >= 0; k--) { const ms = end - k * 864e5, d = isoDay(ms); out.push({d, ms, row: map[d] || null}); }
+  return out;
+}
+
+/* ================= Players ================= */
+async function loadPlayers() {
+  let res;
+  try { res = await adminStats(); } catch (e) { res = {gate: 'error', msg: "Couldn't reach Supabase."}; }
+  const box = $('players');
+  if (res.gate === 'signin') { box.innerHTML = `<div class="gate"><b>Sign in first</b>Open <a href="/">playpuzzl.com</a>, tap the person icon and sign in, then come back here.</div>`; return; }
+  if (res.gate === 'notadmin') { box.innerHTML = `<div class="gate"><b>Not for this account</b>This page is just for the Puzzl team.</div>`; return; }
+  if (res.gate === 'error') { box.innerHTML = `<div class="gate"><b>Couldn't load the numbers</b>${esc(res.msg || 'Something went wrong.')} Have you run the HQ setup in Supabase?</div>`; return; }
+  const D = res.data;
+  const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+  box.innerHTML = `
+    <div class="tiles">
+      <div class="tile"><span>Accounts</span><b>${D.accounts}</b><small>${D.unclaimed ? `+ ${D.unclaimed} old crew name${D.unclaimed === 1 ? '' : 's'} not signed in` : 'everyone signed in'}</small></div>
+      <div class="tile"><span>Played today</span><b>${D.active.today}</b><small>signed-in players</small></div>
+      <div class="tile"><span>This week</span><b>${D.active.week}</b><small>${D.active.month} in the last 30 days</small></div>
+      <div class="tile"><span>Full houses</span><b>${D.fullHouses}</b><small>all six done today</small></div>
+      <div class="tile"><span>Backed up</span><b>${D.synced}</b><small>${pct(D.synced, D.named)}% of named players</small></div>
+    </div>
+    <div class="two">
+      <div class="panel"><h3>Daily players</h3><p class="sub">Last 30 days · players who sent at least one score</p><div class="chart" id="cDaily"></div></div>
+      <div class="panel"><h3>New sign-ups</h3><p class="sub">Last 30 days · new accounts each day</p><div class="chart" id="cSign"></div></div>
+    </div>
+    <div class="panel" style="margin-top:12px"><h3>Games</h3><p class="sub">Plays by signed-in players. Use this to see which bonus games earn a place in the daily six.</p>
+      <table><thead><tr><th>Game</th><th>Today</th><th>Last 7 days</th><th class="hide-sm">Avg points</th><th class="hide-sm">Scored 0</th></tr></thead><tbody id="tGames"></tbody></table></div>
+    <div class="two">
+      <div class="panel"><h3>Streaks</h3><p class="sub">Players on a current run of daily games</p><table><tbody id="tStreak"></tbody></table>
+        <div class="list" id="lTop" style="margin-top:10px"></div></div>
+      <div class="panel"><h3>Newest players</h3><p class="sub">Latest names picked</p><div class="list" id="lNew"></div></div>
+    </div>`;
+  const days = last30(D.daily);
+  columns($('cDaily'), days.map(x => ({label: fmt(new Date(x.ms), {day: 'numeric', month: 'short'}), value: x.row ? x.row.players : 0,
+    tip: `<small>${fmt(new Date(x.ms))}</small><b>${x.row ? x.row.players : 0}</b> players · ${x.row ? x.row.plays : 0} games`})), 'Daily players, last 30 days');
+  const sign = last30(D.signups);
+  columns($('cSign'), sign.map(x => ({label: fmt(new Date(x.ms), {day: 'numeric', month: 'short'}), value: x.row ? x.row.n : 0,
+    tip: `<small>${fmt(new Date(x.ms))}</small><b>${x.row ? x.row.n : 0}</b> new account${x.row && x.row.n === 1 ? '' : 's'}`})), 'New sign-ups, last 30 days');
+  const games = GAMES.map(g => Object.assign({today: 0, week: 0, avg: null, zero: 0}, (D.games || []).find(x => x.g === g.id) || {}, {g}));
+  const maxW = Math.max(1, ...games.map(x => x.week));
+  $('tGames').innerHTML = games.map(x => `<tr>
+    <td><span class="g"><i style="--c:${x.g.colour}"></i>${esc(x.g.name)}${x.g.bonus ? '<em>BONUS</em>' : ''}</span></td>
+    <td>${x.today}</td>
+    <td class="barcell"><div class="hb"><span>${x.week}</span><i style="width:${Math.round(x.week / maxW * 100)}%;max-width:160px"></i></div></td>
+    <td class="hide-sm">${x.avg == null ? '–' : x.avg}</td>
+    <td class="hide-sm">${x.week ? pct(x.zero, x.week) + '%' : '–'}</td></tr>`).join('');
+  const S = D.streaks || {}, maxS = Math.max(1, ...Object.values(S));
+  $('tStreak').innerHTML = ['1', '2-3', '4-6', '7-13', '14+'].map(k => `<tr><td>${k} day${k === '1' ? '' : 's'}</td>
+    <td class="barcell"><div class="hb"><span>${S[k] || 0}</span><i style="width:${Math.round((S[k] || 0) / maxS * 100)}%;max-width:160px"></i></div></td></tr>`).join('');
+  $('lTop').innerHTML = (D.topStreaks || []).length ? '<p class="sub" style="margin:4px 0 0">Longest going</p>' + D.topStreaks.map(s => `<div class="li"><b>${esc(s.name)}</b><span>🔥 ${s.streak}</span></div>`).join('') : '';
+  $('lNew').innerHTML = (D.newest || []).map(n => `<div class="li"><b>${esc(n.name)}</b><span>${new Date(n.at).toLocaleDateString('en-GB', {day: 'numeric', month: 'short'})}</span></div>`).join('') || '<p class="sub">No one yet</p>';
+}
+
+/* ================= Go ================= */
+async function all() {
+  $('asof').textContent = `Updated ${new Date().toLocaleString('en-GB', {weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London'})}`;
+  await Promise.all([loadRunway(), loadPlayers()]);
+}
+$('refresh').onclick = all;
+all();
+</script>
+</body>
+</html>

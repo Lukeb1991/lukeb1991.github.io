@@ -63,6 +63,30 @@
         <path d="M30 6v13M30 6l7 2v5" stroke="#fde68a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
         <circle cx="27.5" cy="19" r="3" fill="#fde68a"/></svg>`,
     },
+    {
+      id: 'uu', name: 'Up & Under', kind: 'Sports', tag: 'Higher or lower? Every answer sets the next bar.',
+      meta: '8 rounds · 1 chain', numberLabel: 'Match', isNew: true,
+      url: '/UpandOver/', launch: '2026-10-20',
+      /* Reads what Up & Under saves in the browser: 1 point per right call, 8 a day */
+      read(d) {
+        const st = get('upunder-stats') || {}, s = get('upunder-state');
+        const today = s && s.day === d ? s : null;
+        const answers = today && Array.isArray(today.answers) ? today.answers : [];
+        const done = st.lastDay === d;
+        return {
+          done, lost: false,
+          started: answers.length > 0,
+          streak: st.lastDay >= d - 1 ? st.streak || 0 : 0,
+          result: done ? `Scored ${answers.filter(a => a && a.c).length}/8` : '',
+        };
+      },
+      art: `<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M32 3l10 10H22z" fill="#ff4fa3"/>
+        <rect x="15" y="16" width="34" height="32" rx="6" fill="#211c52" stroke="#5a538f" stroke-width="1.6"/>
+        <path d="M16 38c5-3 9 2 16 0s11-3 16 0v4a5 5 0 0 1-5 5H21a5 5 0 0 1-5-5z" fill="#ff4fa3" fill-opacity=".75"/>
+        <path d="M7 32h50" stroke="#f4f0ff" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 3"/>
+        <path d="M32 61l10-10H22z" fill="#38b6ff"/></svg>`,
+    },
   ];
 
   const css = `
@@ -80,6 +104,8 @@
   .g-pork .art::before{background:linear-gradient(45deg,rgba(255,77,109,.09) 25%,transparent 25%,transparent 75%,rgba(255,77,109,.09) 75%) 0 0/22px 22px,linear-gradient(45deg,rgba(255,77,109,.09) 25%,transparent 25%,transparent 75%,rgba(255,77,109,.09) 75%) 11px 11px/22px 22px}
   .g-pop{--ac:#f472b6;--onac:#2a0619;--artfg:#5eead4;--art:radial-gradient(120% 110% at 30% 0%,#1d3a5c,#141a36 55%,#0a0d1d)}
   .g-pop .art::before{background:radial-gradient(circle,transparent 5px,rgba(125,211,252,.13) 5.5px,transparent 6.5px) 0 0/34px 34px,radial-gradient(circle,transparent 3px,rgba(244,114,182,.12) 3.5px,transparent 4.5px) 17px 17px/34px 34px}
+  .g-uu{--ac:#38b6ff;--onac:#04203a;--artfg:#ff4fa3;--art:radial-gradient(120% 110% at 50% 0%,#2a2170,#141136 55%,#0c0a24)}
+  .g-uu .art::before{background:repeating-linear-gradient(180deg,rgba(255,255,255,.04) 0 12px,transparent 12px 24px)}
   @media (max-width:600px){
     .bonus{margin-top:24px}
     .card.wide .art{width:108px;min-height:0}

@@ -23,6 +23,7 @@
   const BONUSES = [
     {id: 'pork', name: 'Porkies',  path: '/Porkies/',  launch: '2026-10-07', colour: '#ff4d6d', stats: 'porkies-stats', field: 'lastDay', bonus: true},
     {id: 'pop',  name: 'Pop Quiz', path: '/Pop-Quiz/', launch: '2026-10-21', colour: '#f472b6', stats: 'pq-stats-v3',   field: 'lastDay', bonus: true},
+    {id: 'uu',   name: 'Up & Under', path: '/UpandOver/', launch: '2026-10-20', colour: '#38b6ff', stats: 'upunder-stats', field: 'lastDay', bonus: true},
   ];
   const ALL = [...GAMES, ...BONUSES];
   const RESULTS = '#result, #end';   // each game's results section; the card goes straight underneath it

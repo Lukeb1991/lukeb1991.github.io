@@ -80,12 +80,10 @@
           result: done ? `Scored ${answers.filter(a => a && a.c).length}/8` : '',
         };
       },
+      /* Ref's cards: yellow for higher, red for lower */
       art: `<svg viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M32 3l10 10H22z" fill="#ff4fa3"/>
-        <rect x="15" y="16" width="34" height="32" rx="6" fill="#211c52" stroke="#5a538f" stroke-width="1.6"/>
-        <path d="M16 38c5-3 9 2 16 0s11-3 16 0v4a5 5 0 0 1-5 5H21a5 5 0 0 1-5-5z" fill="#ff4fa3" fill-opacity=".75"/>
-        <path d="M7 32h50" stroke="#f4f0ff" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 3"/>
-        <path d="M32 61l10-10H22z" fill="#38b6ff"/></svg>`,
+        <g transform="rotate(-13 19 33)"><rect x="6" y="14" width="26" height="38" rx="3.5" fill="#ffd23f"/><path d="M19 42V25M12.5 31l6.5-6.5 6.5 6.5" stroke="#0c0a24" stroke-width="3.2"/></g>
+        <g transform="rotate(11 45 33)"><rect x="32" y="14" width="26" height="38" rx="3.5" fill="#ff3b4f" stroke="#141136" stroke-width="1.6"/><path d="M45 25v17M38.5 35.5l6.5 6.5 6.5-6.5" stroke="#fff" stroke-width="3.2"/></g></svg>`,
     },
   ];
 

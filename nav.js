@@ -9,7 +9,7 @@
   /* ================= Settings ================= */
   const RESET_HOUR = 7;          // new puzzles at 7am UK time, same as the games
   const HOME = '/';
-  /* The daily six in playing order, then the bonus game.
+  /* The daily six in playing order, then the bonus games.
      done: reads the stats each game saves, so it knows if today's puzzle has been finished.
      If a game ever changes where it saves (e.g. a -v2 becomes -v3), change it here too. */
   const GAMES = [
@@ -20,8 +20,11 @@
     {id: 'code', name: 'Codebreaker',   path: '/Codebreaker/',   launch: '2026-10-07', colour: '#3fcf8e', stats: 'codebreaker-stats', field: 'lastDay'},
     {id: 'quid', name: 'Quids In',      path: '/QuidsIn/',       launch: '2026-10-07', colour: '#f7c948', stats: 'quidsin-stats',     field: 'lastDay'},
   ];
-  const BONUS = {id: 'pork', name: 'Porkies', path: '/Porkies/', launch: '2026-10-07', colour: '#ff4d6d', stats: 'porkies-stats', field: 'lastDay', bonus: true};
-  const ALL = [...GAMES, BONUS];
+  const BONUSES = [
+    {id: 'pork', name: 'Porkies',  path: '/Porkies/',  launch: '2026-10-07', colour: '#ff4d6d', stats: 'porkies-stats', field: 'lastDay', bonus: true},
+    {id: 'pop',  name: 'Pop Quiz', path: '/Pop-Quiz/', launch: '2026-10-21', colour: '#f472b6', stats: 'pq-stats-v3',   field: 'lastDay', bonus: true},
+  ];
+  const ALL = [...GAMES, ...BONUSES];
   const RESULTS = '#result, #end';   // each game's results section; the card goes straight underneath it
 
   /* ================= Helpers ================= */
@@ -110,7 +113,8 @@
       const left = GAMES.filter(x => !isDone(x)).length;
       return {label: `Next up · ${left} left`, name: g.name, colour: g.colour, href: linkTo(g), btn: 'Play →'};
     }
-    if (!here.bonus && !isDone(BONUS)) return {label: 'All six done · bonus game', name: BONUS.name, colour: BONUS.colour, href: linkTo(BONUS), btn: 'Play →'};
+    const b = BONUSES.find(x => x.id !== here.id && !isDone(x));
+    if (b) return {label: here.bonus ? 'Another bonus game' : 'All six done · bonus game', name: b.name, colour: b.colour, href: linkTo(b), btn: 'Play →'};
     return inLeague()
       ? {label: 'All done for today', name: 'See the leaderboard', colour: '#a855f7', href: `${HOME}#board`, btn: 'Go →'}
       : {label: 'All done for today', name: 'Back to Puzzl', colour: '#a855f7', href: HOME, btn: 'Go →'};

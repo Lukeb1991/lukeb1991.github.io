@@ -34,7 +34,9 @@
     return Math.max(1, Math.round((Date.UTC(+o.year, +o.month - 1, +o.day) - Date.UTC(y, m - 1, d)) / 864e5) + 1);
   }
   const isDone = g => { const s = get(g.stats); return !!s && s[g.field] === dayNumber(g.launch); };
-  const inLeague = () => { const m = get('puzzl-league'); return !!(m && m.id); };
+  /* On a leaderboard? (signed in with a name, or the old crew login) Then hops go via the homepage so scores are sent */
+  const inLeague = () => { const a = get('puzzl-account'), t = get('puzzl-auth'), m = get('puzzl-league');
+    return !!((a && a.id && t && t.refresh_token) || (m && m.id)); };
   const path = location.pathname.replace(/index\.html$/, '');
   const here = ALL.find(g => path.toLowerCase().endsWith(g.path.toLowerCase()));
   const onHome = path === '/' || path === '';   // the homepage now sits at the root of playpuzzl.com

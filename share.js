@@ -12,11 +12,10 @@
   /* ---------- Today's results ---------- */
   const POINTS = window.puzzlPoints || {};
   const square = (done, pts) => !done ? '⬛' : pts >= 80 ? '🟩' : pts >= 50 ? '🟨' : pts > 0 ? '🟧' : '🟥';
-  function porkies() {
-    const d = dayNumber(PUZZL_LAUNCH), st = get('porkies-stats') || {}, s = get('porkies-state');
-    if (st.lastDay !== d || !s || s.day !== d) return null;
-    const h = s.hints || 0;
-    return s.status === 'won' ? (h ? `caught them with ${h} hint${h > 1 ? 's' : ''}` : 'caught them clean') : 'got fooled';
+  /* Bonus games finished today (Porkies, Pop Quiz, Up & Under), from leaderboard.js */
+  function bonuses() {
+    return (window.puzzlBonus || []).map(b => { let r = null; try { r = b.result(dayNumber(b.launch)); } catch (e) {}
+      return r ? {emoji: b.emoji, name: b.name, txt: r.txt, short: r.short || r.txt} : null; }).filter(Boolean);
   }
   function today() {
     const rows = GAMES.map(g => {
@@ -25,14 +24,14 @@
       let pts = 0; try { pts = r.done && POINTS[g.id] ? POINTS[g.id](d) : 0; } catch (e) {}
       return {id: g.id, name: g.name, colour: COLOURS[g.id], done: !!r.done, pts, txt: r.done ? (r.result || 'Done') : 'Not played'};
     });
-    return {no: dayNumber(PUZZL_LAUNCH), rows, total: rows.reduce((t, r) => t + r.pts, 0), played: rows.filter(r => r.done).length, pork: porkies()};
+    return {no: dayNumber(PUZZL_LAUNCH), rows, total: rows.reduce((t, r) => t + r.pts, 0), played: rows.filter(r => r.done).length, bonus: bonuses()};
   }
   function shareText(t) {
     return [
       `Puzzl #${t.no} · ${t.total}/600`,
       t.rows.map(r => square(r.done, r.pts)).join(''),
       t.rows.map(r => EMOJI[r.id] || '•').join(''),
-      ...(t.pork ? [`🥧 Porkies: ${t.pork}`] : []),
+      ...t.bonus.map(b => `${b.emoji} ${b.name}: ${b.txt}`),
       SITE,
     ].join('\n');
   }
@@ -83,7 +82,7 @@
     });
     // footer
     x.font = `500 26px ${mono}`; x.fillStyle = '#939fca';
-    x.fillText(t.pork ? `+ Porkies: ${t.pork}` : 'Six daily puzzles · new every morning at 7', 72, S - 62);
+    x.fillText(t.bonus.length ? `+ Bonus  ${t.bonus.map(b => `${b.emoji} ${b.short}`).join('  ')}` : 'Six daily puzzles · freshly brewed at 7am', 72, S - 62);
     x.textAlign = 'right'; x.fillStyle = '#c7d2ff'; x.fillText(SITE.replace(/^https:\/\//, '').replace(/\/$/, ''), S - 72, S - 62);
     return new Promise(res => c.toBlob(b => res(b), 'image/png'));
   }

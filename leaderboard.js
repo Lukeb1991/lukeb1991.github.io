@@ -27,14 +27,28 @@
                  return Math.min(100, Math.round(b / 180 * 100)); },
   };
   window.puzzlPoints = POINTS;   // share.js uses the same points rules
-  /* Porkies, the bonus game: shown on league boards but not in the daily total */
-  const PORK = {name: 'Porkies', colour: '#ff4d6d', launch: '2026-10-08'};
-  function porkResult(d) {
-    const st = get('porkies-stats') || {}, s = get('porkies-state');
-    if (st.lastDay !== d || !s || s.day !== d) return null;
-    const h = s.hints || 0, won = s.status === 'won';
-    return {pts: won ? Math.max(25, 100 - h * 25) : 0, txt: won ? (h ? `Caught with ${h} hint${h > 1 ? 's' : ''}` : 'Caught them clean') : 'Fooled!'};
-  }
+  /* The bonus games: shown on league boards and the share card, but not in the daily total.
+     launch must match each game's own puzzle No. 1 date (and bonus.js / nav.js).
+     result(d) reads what the game saved for day d: {pts out of 100, txt} or null if not finished. */
+  const BONUS = [
+    {id: 'pork', name: 'Porkies', emoji: '🥧', colour: '#ff4d6d', launch: '2026-10-07', result: d => {
+      const st = get('porkies-stats') || {}, s = get('porkies-state');
+      if (st.lastDay !== d || !s || s.day !== d) return null;
+      const h = s.hints || 0, won = s.status === 'won';
+      return {pts: won ? Math.max(25, 100 - h * 25) : 0, txt: won ? (h ? `Caught with ${h} hint${h > 1 ? 's' : ''}` : 'Caught them clean') : 'Fooled!', short: won ? 'caught' : 'fooled'}; }},
+    {id: 'pop', name: 'Pop Quiz', emoji: '🎵', colour: '#f472b6', launch: '2026-10-21', result: d => {   // 1 point a bubble, 27 a day
+      const st = get('pq-stats-v3') || {}, s = get('pq-state-v3');
+      if (st.lastDay !== d || !s || s.day !== d) return null;
+      const n = (s.codes || []).reduce((t, c) => t + [...String(c)].filter(x => x === 'g' || x === 'k').length, 0);
+      return {pts: Math.round(n / 27 * 100), txt: `Scored ${n}/27`, short: `${n}/27`}; }},
+    {id: 'uu', name: 'Up & Under', emoji: '🏉', colour: '#38b6ff', launch: '2026-10-20', result: d => {   // 1 point a right call, 8 a day
+      const st = get('upunder-stats') || {}, s = get('upunder-state');
+      if (st.lastDay !== d || !s || s.day !== d) return null;
+      const n = (s.answers || []).filter(a => a && a.c).length;
+      return {pts: Math.round(n / 8 * 100), txt: `Scored ${n}/8`, short: `${n}/8`}; }},
+  ];
+  window.puzzlBonus = BONUS;   // share.js uses these too
+  const bonusResult = b => { try { return b.result(dayNumber(b.launch)); } catch (e) { return null; } };
 
   /* ---------- Helpers ---------- */
   const esc = s => String(s).replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m]));
@@ -187,6 +201,7 @@
   .lb-games .lb-row .tx{color:var(--ice)}
   .lb-games .lb-row.zero .tx{color:#ff5d73}
   .lb-empty{padding:14px 16px;color:var(--muted);font-size:14px}
+  .board-sub{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:18px 0 10px}
   .lb-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:14px;font-size:13px;color:var(--muted)}
   .lb-foot b{color:var(--text);font-weight:500}
   .lb-link{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 14px;border-radius:99px;border:1px solid var(--line2);background:transparent;color:var(--text);font:500 13px var(--sans);cursor:pointer;text-decoration:none}
@@ -341,10 +356,10 @@
       let pts = 0; try { pts = POINTS[g.id](d); } catch (e) {}
       jobs.push([`${g.id}:${day}`, {p_game: g.id, p_points: Math.max(0, Math.min(100, pts | 0)), p_detail: String(r.result || '')}]);
     }
-    try {
-      const pr = porkResult(dayNumber(PORK.launch));
-      if (pr && !sent[`pork:${day}`]) jobs.push([`pork:${day}`, {p_game: 'pork', p_points: pr.pts, p_detail: pr.txt}]);
-    } catch (e) {}
+    for (const b of BONUS) {
+      const br = bonusResult(b);
+      if (br && !sent[`${b.id}:${day}`]) jobs.push([`${b.id}:${day}`, {p_game: b.id, p_points: Math.max(0, Math.min(100, br.pts | 0)), p_detail: br.txt}]);
+    }
     for (const [k, body] of jobs) {
       try {
         if (asAccount) await rpc('puzzl_submit_me', Object.assign({p_day: day}, body), true);
@@ -487,7 +502,8 @@
         ${totalRows || '<div class="lb-empty">No players yet</div>'}
       </div>
       <div class="lb-games">${GAMES.map(g => gameCard(g.id, g.name, COLOURS[g.id])).join('')}</div>
-      ${todays.some(s => s.g === 'pork') ? `<div class="lb-games" style="grid-template-columns:1fr">${gameCard('pork', PORK.name + ' · bonus, not in the total', PORK.colour)}</div>` : ''}
+      ${BONUS.some(b => todays.some(s => s.g === b.id)) ? `<div class="board-sub">Bonus games · not in the total</div>
+        <div class="lb-games">${BONUS.filter(b => todays.some(s => s.g === b.id)).map(b => gameCard(b.id, b.name, b.colour)).join('')}</div>` : ''}
       <div class="lb-panel">
         <div class="lb-title"><span><b>Last 7 days</b></span><span>Points</span></div>
         ${weekRows}
@@ -509,7 +525,7 @@
     <b>Quids In:</b> your winnings out of £180.<br><br>
     A loss scores 0. Results are sent when you come back to this page, and only your first go each day counts.
     A streak is days in a row with at least one daily game played.<br><br>
-    Porkies is a bonus game and doesn't count towards the total.</p></details>`;
+    The bonus games (Porkies, Pop Quiz and Up &amp; Under) show on league boards but don't count towards the total.</p></details>`;
 
   async function invite(b) {
     const code = b.dataset.code, gname = b.dataset.name || 'my Puzzl league';
@@ -736,11 +752,11 @@
      your account and merges them with what's there, so a new phone picks up where you left off. */
   const SYNC_OWNER = 'puzzl-sync-owner', SYNC_AT = 'puzzl-sync-at';
   // lifetime stats for each game: games played, streaks, bests
-  const STAT_KEYS = ['dtl-stats-v2', 'geoclue-stats', 'pecking-stats', 'tethered-stats', 'codebreaker-stats', 'quidsin-stats', 'porkies-stats'];
+  const STAT_KEYS = ['dtl-stats-v2', 'geoclue-stats', 'pecking-stats', 'tethered-stats', 'codebreaker-stats', 'quidsin-stats', 'porkies-stats', 'pq-stats-v3', 'upunder-stats'];
   // today's game, in progress or finished (each one knows its .day)
-  const DAY_KEYS = ['dtl-state-v4', 'pecking-state', 'tethered-state', 'codebreaker-state', 'quidsin-state', 'porkies-state'];
+  const DAY_KEYS = ['dtl-state-v4', 'pecking-state', 'tethered-state', 'codebreaker-state', 'quidsin-state', 'porkies-state', 'pq-state-v3', 'upunder-state'];
   // "seen how to play" flags: seen once, seen everywhere
-  const FLAG_KEYS = ['dtl-seen-help', 'geoclue-seen', 'pecking-seen', 'tethered-v2-seen', 'codebreaker-seen', 'codebreaker-coached', 'quidsin-seen', 'porkies-seen'];
+  const FLAG_KEYS = ['dtl-seen-help', 'geoclue-seen', 'pecking-seen', 'tethered-v2-seen', 'codebreaker-seen', 'codebreaker-coached', 'quidsin-seen', 'porkies-seen', 'pq-seen-help', 'upunder-hint'];
   const HUB_KEY = 'puzzl-hub';   // the homepage's own "full house" record
   const geoKeys = () => { const g = GAMES.find(x => x.id === 'geo'); if (!g) return []; const d = dayNumber(g.launch); return ['geoclue-v2-' + d, 'geoclue-v2-' + (d - 1)]; };
   const syncKeys = () => [...STAT_KEYS, ...DAY_KEYS, ...FLAG_KEYS, HUB_KEY, ...geoKeys()];
@@ -748,7 +764,7 @@
   const obj = s => { try { const v = s ? JSON.parse(s) : null; return v && typeof v === 'object' ? v : null; } catch (e) { return null; } };
   const num = v => +v || 0;
   const lastOf = s => Math.max(num(s.lastDay), num(s.lastPlayed));
-  const finished = s => !!s && (['won', 'lost', 'boom', 'done'].includes(s.status) || s.stage === 'done');
+  const finished = s => !!s && (['won', 'lost', 'boom', 'done'].includes(s.status) || s.stage === 'done' || s.counted === true);
 
   /* Two copies of a game's lifetime stats: keep the one with more games played,
      then add on any days the other device has played since. */

@@ -100,6 +100,7 @@
     save(AUTH_KEY, null); save(ACCT_KEY, null);
   }
   async function signOut() {
+    try { await Promise.race([syncStats(true), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}   // back up first
     const t = session && session.access_token;
     forget();
     if (t) auth('logout', {}, t).catch(() => {});
@@ -596,11 +597,11 @@
           try {
             const j = await rpc('puzzl_claim', {p_player: legacy.id}, true);
             await loadAccount();
-            if (j.claimed) { save(LEGACY_KEY, null); legacy = null; await finish(`Welcome back, ${esc(account.name)}`, 'Your name is now locked to your account, and your scores are safe.'); return; }
+            if (j.claimed) { save(LEGACY_KEY, null); legacy = null; await finish(`Welcome back, ${esc(account.name)}`, 'Your name is now locked to your account, and your stats and streaks are backed up.'); return; }
           } catch (e) { /* someone else has it: pick a new name */ }
         }
         if (!account.id) { stepName(); return; }
-        await finish(`Welcome back, ${esc(account.name)}`, "You're signed in. Your scores will be added to the boards.");
+        await finish(`Welcome back, ${esc(account.name)}`, "You're signed in. Your stats and streaks have been brought over to this device.");
       } catch (e) { stepEmail(e.message); }
     }
 
@@ -623,7 +624,7 @@
           await rpc('puzzl_set_name', {p_name: inp.value}, true);
           await loadAccount();
           if (had) { dlg.close(); afterAccountChange(); return; }
-          await finish(`Nice one, ${esc(account.name)}`, "You're on the boards. Your scores will be added each time you come back here.");
+          await finish(`Nice one, ${esc(account.name)}`, "You're on the boards, and your stats and streaks now follow you to any device.");
         } catch (e) { err.textContent = e.message; go.disabled = false; go.textContent = 'Save'; }
       };
     }
@@ -658,6 +659,7 @@
         <div class="acct-list">
           <button type="button" data-a="board">Leaderboards <span>→</span></button>
           <button type="button" data-a="name">Change name <span>${esc(account.name)}</span></button>
+          <button type="button" data-a="sync">Stats backed up <span id="pzSyncAt">${syncLabel()}</span></button>
           ${account.groups.length ? `<button type="button" data-a="board">Your leagues <span>${account.groups.map(g => esc(g.name)).join(', ')}</span></button>` : ''}
           <a href="/privacy/" target="_blank" rel="noopener">Privacy <span>What we keep</span></a>
           <button type="button" data-a="out">Sign out</button>
@@ -671,6 +673,8 @@
         if (a === 'name') { dlg.close(); signInDialog({start: 'name'}); }
         if (a === 'out') { dlg.close(); signOut(); }
         if (a === 'del') confirmDelete();
+        if (a === 'sync') { const sp = dlg.querySelector('#pzSyncAt'); sp.textContent = 'Backing up…';
+          syncStats(true).then(() => { sp.textContent = syncLabel(); }); }
       });
     };
     const confirmDelete = () => {
@@ -683,7 +687,7 @@
         const b = ev.currentTarget; b.disabled = true; b.textContent = 'Deleting…';
         try {
           await rpc('puzzl_delete_me', {}, true);
-          forget(); save(SENT_KEY, null);
+          forget(); save(SENT_KEY, null); save(SYNC_OWNER, null); save(SYNC_AT, null);
           dlg.innerHTML = `<h3>All gone</h3><p>Your account and scores have been deleted. You can carry on playing without one.</p>
             <div class="lb-actions"><button type="button" class="lb-go" data-close>OK</button></div>`;
           dlg.querySelector('[data-close]').onclick = () => dlg.close();
@@ -727,10 +731,113 @@
     });
   }
 
+  /* ================= Stats sync: your stats and streaks follow you to any device ================= */
+  /* Each game keeps its stats in this browser. When you're signed in, the homepage backs them up to
+     your account and merges them with what's there, so a new phone picks up where you left off. */
+  const SYNC_OWNER = 'puzzl-sync-owner', SYNC_AT = 'puzzl-sync-at';
+  // lifetime stats for each game: games played, streaks, bests
+  const STAT_KEYS = ['dtl-stats-v2', 'geoclue-stats', 'pecking-stats', 'tethered-stats', 'codebreaker-stats', 'quidsin-stats', 'porkies-stats'];
+  // today's game, in progress or finished (each one knows its .day)
+  const DAY_KEYS = ['dtl-state-v4', 'pecking-state', 'tethered-state', 'codebreaker-state', 'quidsin-state', 'porkies-state'];
+  // "seen how to play" flags: seen once, seen everywhere
+  const FLAG_KEYS = ['dtl-seen-help', 'geoclue-seen', 'pecking-seen', 'tethered-v2-seen', 'codebreaker-seen', 'codebreaker-coached', 'quidsin-seen', 'porkies-seen'];
+  const HUB_KEY = 'puzzl-hub';   // the homepage's own "full house" record
+  const geoKeys = () => { const g = GAMES.find(x => x.id === 'geo'); if (!g) return []; const d = dayNumber(g.launch); return ['geoclue-v2-' + d, 'geoclue-v2-' + (d - 1)]; };
+  const syncKeys = () => [...STAT_KEYS, ...DAY_KEYS, ...FLAG_KEYS, HUB_KEY, ...geoKeys()];
+  const raw = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const obj = s => { try { const v = s ? JSON.parse(s) : null; return v && typeof v === 'object' ? v : null; } catch (e) { return null; } };
+  const num = v => +v || 0;
+  const lastOf = s => Math.max(num(s.lastDay), num(s.lastPlayed));
+  const finished = s => !!s && (['won', 'lost', 'boom', 'done'].includes(s.status) || s.stage === 'done');
+
+  /* Two copies of a game's lifetime stats: keep the one with more games played,
+     then add on any days the other device has played since. */
+  function mergeStats(rl, rc) {
+    const a = obj(rl), b = obj(rc);
+    if (!a) return rc; if (!b) return rl;
+    const aFirst = num(a.played) > num(b.played) || (num(a.played) === num(b.played) && lastOf(a) >= lastOf(b));
+    const base = aFirst ? a : b, other = aFirst ? b : a, gap = lastOf(other) - lastOf(base);
+    if (gap <= 0) return aFirst ? rl : rc;
+    const m = Object.assign({}, base);
+    m.played = num(base.played) + Math.max(1, Math.min(gap, num(other.streak) || 1));
+    for (const f of ['lastDay', 'lastPlayed', 'lastWon', 'lastWin']) if (f in other || f in base) m[f] = Math.max(num(base[f]), num(other[f]));
+    m.streak = num(other.streak) >= gap ? Math.max(num(other.streak), num(base.streak) + gap) : num(other.streak);
+    if ('best' in m || 'best' in other) m.best = Math.max(num(base.best), num(other.best), m.streak);
+    if ('max' in m || 'max' in other) m.max = Math.max(num(base.max), num(other.max), m.streak);
+    if ('top' in m || 'top' in other) m.top = Math.max(num(base.top), num(other.top));
+    return JSON.stringify(m);
+  }
+  /* Two copies of a game in progress: the later day wins; on the same day, a finished game beats an unfinished one */
+  function mergeDay(rl, rc) {
+    const l = obj(rl), c = obj(rc);
+    if (!c) return rl; if (!l) return rc;
+    if (num(l.day) !== num(c.day)) return num(l.day) > num(c.day) ? rl : rc;
+    return finished(c) && !finished(l) ? rc : rl;
+  }
+  function mergeHub(rl, rc) {
+    const l = obj(rl), c = obj(rc);
+    if (!c) return rl; if (!l) return rc;
+    if (num(l.full) !== num(c.full)) return num(l.full) > num(c.full) ? rl : rc;
+    return String(l.last || '') >= String(c.last || '') ? rl : rc;
+  }
+
+  let syncJob = null, lastSync = 0;
+  function syncStats(force) {
+    if (!hasName()) return Promise.resolve(false);
+    if (syncJob) return syncJob;
+    if (!force && Date.now() - lastSync < 30e3) return Promise.resolve(false);
+    lastSync = Date.now();
+    syncJob = doSync().catch(() => false).finally(() => { syncJob = null; });
+    return syncJob;
+  }
+  async function doSync() {
+    const me = account.id;
+    const cloud = (await rpc('puzzl_save_get', {}, true)) || {};
+    const owner = load(SYNC_OWNER, null);
+    const takeover = !!owner && owner !== me;   // a different account used this device last: show this account's stats instead
+    const keys = syncKeys(), merged = {};
+    for (const k of keys) {
+      const l = raw(k), c = typeof cloud[k] === 'string' ? cloud[k] : null;
+      const v = takeover ? c
+        : STAT_KEYS.includes(k) ? mergeStats(l, c)
+        : k === HUB_KEY ? mergeHub(l, c)
+        : FLAG_KEYS.includes(k) ? (l || c)
+        : mergeDay(l, c);
+      if (v != null) merged[k] = v;
+    }
+    let changed = false;
+    for (const k of keys) {
+      const v = k in merged ? merged[k] : null;
+      if (v !== raw(k)) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); changed = true; } catch (e) {} }
+    }
+    save(SYNC_OWNER, me);
+    const same = Object.keys(cloud).length === Object.keys(merged).length && Object.keys(merged).every(k => cloud[k] === merged[k]);
+    if (!same) await rpc('puzzl_save_put', {p_data: merged}, true);
+    save(SYNC_AT, Date.now());
+    if (changed) { try { window.dispatchEvent(new StorageEvent('storage')); } catch (e) {} }   // homepage cards, Stats and Porkies redraw
+    paintStatsNote();
+    return changed;
+  }
+  function syncLabel() {
+    const t = load(SYNC_AT, 0);
+    if (!t) return 'Not yet';
+    const m = Math.round((Date.now() - t) / 60e3);
+    return m < 1 ? 'Just now' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} hr ago` : `${Math.round(m / 1440)} days ago`;
+  }
+  /* The Stats view says where stats live: on this device, or backed up to your account */
+  function paintStatsNote() {
+    document.querySelectorAll('.stats-note').forEach(n => {
+      const want = hasName() ? 'Backed up to your account, so your stats follow you to any device.' : 'Stats are saved on this device and browser. Sign in to back them up.';
+      if (n.textContent !== want) n.textContent = want;
+    });
+  }
+  const statsSec = document.getElementById('stats');
+  if (statsSec) new MutationObserver(paintStatsNote).observe(statsSec, {childList: true, subtree: true});
+
   /* ================= Keeping everything in step ================= */
   function afterAccountChange() {
-    paintAcct(); paintPrompt();
-    if (hasName()) sendResults().then(() => { if (isOpen()) refresh(true); });
+    paintAcct(); paintPrompt(); paintStatsNote();
+    if (hasName()) syncStats(true).then(() => sendResults()).then(() => { if (isOpen()) refresh(true); });
     else if (isOpen()) refresh(true);
   }
 
@@ -758,6 +865,8 @@
   paintPrompt();
   (async () => {
     if (signedIn()) { try { await loadAccount(); } catch (e) { if (/Not signed in/.test(e.message)) forget(); } paintAcct(); paintPrompt(); }
+    paintStatsNote();
+    if (hasName()) await syncStats(true);
     if (joinCode) { handleJoin(joinCode); return; }
     // came back mid sign-in (e.g. after checking email on a phone): carry on at the code step
     const pend = load(SIGNIN_KEY, null);
@@ -765,7 +874,7 @@
     sendResults();
   })();
   // send again when coming back from a game, and keep the board fresh while it's open
-  const again = () => { paintPrompt(); isOpen() ? refresh() : sendResults(); };
+  const again = () => { paintPrompt(); syncStats().then(() => isOpen() ? refresh() : sendResults()); };
   window.addEventListener('pageshow', e => { if (e.persisted) again(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) again(); });
   setInterval(() => { if (isOpen() && !document.hidden) refresh(); }, 60000);

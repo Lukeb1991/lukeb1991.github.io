@@ -36,8 +36,8 @@
         <path d="M39 21a6 6 0 0 1 6-3" stroke="#fff" stroke-opacity=".6" stroke-width="2"/></svg>`,
     },
     {
-      id: 'pop', name: 'Pop Quiz', kind: 'Music', tag: 'Pop the right bubbles. But how many?',
-      meta: '3 rounds · 9 bubbles each', numberLabel: 'Quiz', isNew: true,
+      id: 'pop', name: 'Pop Quiz', kind: 'Music', tag: 'Pop the flops. Keep the hits.',
+      meta: '3 rounds · 9 bubbles each', numberLabel: 'Track', isNew: true,
       url: '/Pop-Quiz/', launch: '2026-10-21',
       /* Reads what Pop Quiz saves in the browser: 1 point per bubble right, 27 a day */
       read(d) {
@@ -64,7 +64,7 @@
         <circle cx="27.5" cy="19" r="3" fill="#fde68a"/></svg>`,
     },
     {
-      id: 'uu', name: 'Up & Under', kind: 'Sports', tag: 'Higher or lower? Every answer sets the next bar.',
+      id: 'uu', name: 'Up & Under', kind: 'Sports', tag: "Higher or lower. Don't drop the ball.",
       meta: '8 rounds · 1 chain', numberLabel: 'Match', isNew: true,
       url: '/UpandOver/', launch: '2026-10-20',
       /* Reads what Up & Under saves in the browser: 1 point per right call, 8 a day */
